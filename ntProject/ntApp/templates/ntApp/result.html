@@ -1,0 +1,170 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        height: 100vh;
+        margin: 0;
+      }
+
+      .img-wrapper {
+        width: 100%;
+        height: 100%;
+      }
+
+      .absolute {
+        position: absolute;
+        top: 50px;
+        left: 50px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .invisible {
+        visibility: hidden;
+      }
+
+      .z-top {
+        z-index: 99;
+      }
+
+      .undraggable {
+        -webkit-user-drag: none;
+        -khtml-user-drag: none;
+        -moz-user-drag: none;
+        -o-user-drag: none;
+        user-select: none;
+      }
+    </style>
+    <title>Result</title>
+  </head>
+  <body onmouseup="onMouseUp()">
+    <span>결과 페이지입니다</span><br />
+    <div
+      class="img-wrapper"
+      onmousedown="onMouseDown(event)"
+      onmousemove="onMouseMove(event)"
+    >
+      <img
+        src="{% static standard %}"
+        class="absolute undraggable z-top"
+        id="standard"
+      />
+      {% for result in results %}
+      <img
+        src="{% static result %}"
+        class="right absolute hidden undraggable"
+      />
+      {% endfor %}
+    </div>
+
+    <script type="text/javascript">
+      const STEP = 10;
+
+      let startPointX = 0;
+      let startPointY = 0;
+      let start = false;
+
+      const setId = () => {
+        const rightList = document.querySelectorAll("img.right");
+        const upList = document.querySelectorAll("img.up");
+
+        rightList.forEach((item, idx) => (item.id = `e${idx + 1}`));
+        upList.forEach((item, idx) => (item.id = `u${idx + 1}`));
+      };
+
+      const onMouseDown = (event) => {
+        startPointX = event.offsetX;
+        startPointY = event.offsetY;
+
+        if (startPointX && startPointY) {
+          start = true;
+        }
+      };
+
+      const onMouseMove = (event) => {
+        if (!start) return;
+
+        const offsetX = event.offsetX - startPointX;
+        const offsetY = startPointY - event.offsetY;
+
+        const rightId = parseInt(offsetX / STEP) + 1;
+        const upId = parseInt(offsetY / STEP) + 1;
+
+        const radian = Math.atan2(offsetY, offsetX);
+        const degree = ((radian * 180) / Math.PI).toFixed(0);
+
+        if ((degree < 45 && degree > -45) || (degree < -135 && degree > 135)) {
+          const right = document.querySelector(`#e${rightId}`);
+          const prevEl = document.querySelector(".active");
+
+          if (right) {
+            const standard = document.querySelector("#standard");
+            standard.classList.add("invisible");
+
+            right.classList.remove("hidden");
+            right.classList.add("active");
+          }
+
+          if (prevEl) {
+            if (!right) return;
+            if (prevEl.id !== right.id) {
+              prevEl.classList.remove("active");
+              prevEl.classList.add("hidden");
+            }
+          } else {
+            const el = document.querySelector("#standard");
+            el.classList.remove("invisible");
+          }
+        } else if (
+          (degree < 135 && degree > 45) ||
+          (degree < -45 && degree > -135)
+        ) {
+          const up = document.querySelector(`#u${upId}`);
+          const prevEl = document.querySelector(".active");
+
+          if (up) {
+            const standard = document.querySelector("#standard");
+            standard.classList.add("invisible");
+
+            up.classList.remove("hidden");
+            up.classList.add("active");
+          }
+
+          if (prevEl) {
+            if (!up) return;
+            if (prevEl.id !== up.id) {
+              prevEl.classList.remove("active");
+              prevEl.classList.add("hidden");
+            }
+          } else {
+            const el = document.querySelector("#standard");
+            el.classList.remove("invisible");
+          }
+        }
+      };
+
+      const onMouseUp = () => {
+        start = false;
+
+        const el = document.querySelector("#standard");
+        el.classList.remove("invisible");
+
+        const prevEl = document.querySelector(".active");
+
+        if (prevEl) {
+          prevEl.classList.remove("active");
+          prevEl.classList.add("hidden");
+        }
+      };
+
+      setId();
+    </script>
+  </body>
+</html>

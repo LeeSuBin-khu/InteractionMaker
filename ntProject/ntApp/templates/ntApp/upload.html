@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload</title>
+  </head>
+  <body>
+    <span>영상을 입력하세요</span><br />
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %} {{ videoForm.as_p }}
+      <button type="submit">업로드</button>
+    </form>
+  </body>
+</html>
